@@ -1,14 +1,19 @@
 // command.cpp
 #include "command.h"
 
-void Execute(AnyCommand cmd){
+void Execute(AnyCommand cmd, bool from_redo = false){
   switch(cmd.command.type){
     case CMD_TYPE::NONE:
       break;
     case CMD_TYPE::MOVE:
       MoveCommand mv = cmd.move;
+      mv.entity->x_prev = mv.entity->x;
+      mv.entity->y_prev = mv.entity->y;
       mv.entity->x += mv.xDir;
       mv.entity->y += mv.yDir;
+    if(from_redo){
+      mv.entity->progress_01 = 1;
+    }
       break;
   }
 }
@@ -36,6 +41,7 @@ void Undo(CommandBuffer* buffer){
       MoveCommand mv = cmd.move;
       mv.entity->x -= mv.xDir;
       mv.entity->y -= mv.yDir;
+      mv.entity->progress_01 = 1;
       break;
   }
   if(buffer->index > 0){
@@ -54,7 +60,7 @@ void Redo(CommandBuffer* buffer){
     return;
   }
   buffer->index++;
-  Execute(cmd);
+  Execute(cmd, true);
 
   int timestamp = cmd.command.timestamp;
 

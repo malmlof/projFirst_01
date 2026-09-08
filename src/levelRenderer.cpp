@@ -4,6 +4,7 @@
 #include "common.h"
 #include "rendering.h"
 #include <cstdint>
+#include <cmath>
 
 void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
   LevelData lvl = gameData->levels[gameData->currentLevel];
@@ -69,8 +70,11 @@ void RenderEntities(GameData* data, SDL_Renderer* renderer){
     xPos -= data->levels[data->currentLevel].w * CELL_SIZE_PX / 2;
     yPos -= data->levels[data->currentLevel].h * CELL_SIZE_PX / 2;
 
-    xPos += entity.x * CELL_SIZE_PX;
-    yPos += entity.y * CELL_SIZE_PX;
+    float x_animated = std::lerp(entity.x_prev, entity.x, entity.progress_01);
+    float y_animated = std::lerp(entity.y_prev, entity.y, entity.progress_01);
+
+    xPos += x_animated * CELL_SIZE_PX;
+    yPos += y_animated * CELL_SIZE_PX;
 
     RenderSprite(img, renderer, xPos, yPos);
   }

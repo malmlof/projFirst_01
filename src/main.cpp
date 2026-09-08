@@ -163,6 +163,10 @@ int main() {
     size_t COMMAND_SIZE = sizeof(AnyCommand) * gameData->commandBuffer->capacity;
     gameData->commandBuffer->allCommands = (AnyCommand*)Memory::Allocate(gameData->arena_commands, COMMAND_SIZE);
 
+    gameData->input_buffer_capacity = 50;
+    size_t RING_BUFFER_SIZE = sizeof(Position) * gameData->input_buffer_capacity;
+    gameData->input_buffer = (Position*)Memory::Allocate(gameData->arena_levels, RING_BUFFER_SIZE);
+
     DLL_INFO dll;
     bool dll_successfully_loaded = LoadDLL(&dll);
 
@@ -214,6 +218,9 @@ int main() {
         }
 
         dll.update(gameData, dt);
+
+        memcpy((void*)gameData->keys_previous, SDL_GetKeyboardState(nullptr), SDL_SCANCODE_COUNT * sizeof(bool));
+
         dll.draw(gameData, renderer);
 
         double time_to_sleep_ms;

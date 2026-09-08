@@ -28,6 +28,10 @@ struct GameData {
   const float* dt;
   ImGuiContext* imGui_context;
   uint32_t command_timestamp;
+  Position* input_buffer;
+  int input_buffer_capacity;
+  int input_buffer_write_count;
+  int input_buffer_read_count;
 
   LevelData* GetCurrentLevel(){
     return &levels[currentLevel];
