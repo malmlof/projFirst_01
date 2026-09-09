@@ -6,6 +6,7 @@
 #include "image.h"
 #include "imgui/imgui_internal.h"
 #include "levels.h"
+#include "input.h"
 
 struct GameData {
   SDL_FRect rect;
@@ -24,7 +25,6 @@ struct GameData {
   int currentLevelIndex;
   int levelCount;
   int currentLevel;
-  bool* keys_previous;
   const float* dt;
   ImGuiContext* imGui_context;
   uint32_t command_timestamp;
@@ -32,6 +32,8 @@ struct GameData {
   int input_buffer_capacity;
   int input_buffer_write_count;
   int input_buffer_read_count;
+  Input input;
+  Arena* arena_input;
 
   LevelData* GetCurrentLevel(){
     return &levels[currentLevel];

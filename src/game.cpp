@@ -41,26 +41,6 @@ bool HandleEvents(GameData *data, SDL_Event event){
   return true;
   }
 
-
-bool KeyPressed(SDL_Scancode key, const bool* current, const bool* previous){
-  if(previous == nullptr){
-    return current[key];
-  }
-  return current[key] && !previous[key];
-}
-bool KeyHeld(SDL_Scancode key, const bool* current, const bool* previous){
-  if(previous == nullptr){
-    return false;
-  }
-  return current[key] && previous[key];
-}
-bool KeyReleased(SDL_Scancode key, const bool* current, const bool* previous){
-  if(previous == nullptr){
-    return false;
-  }
-  return !current[key] && previous[key];
-}
-
 bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDir, int yDir, int timestamp){
   if(mover->HasBehaviour(CAN_MOVE) == false){
     return false;
@@ -98,27 +78,32 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
 void Update(GameData* data,float dt){
   const bool* keys = SDL_GetKeyboardState(nullptr);
 
-  if(KeyPressed(SDL_SCANCODE_RIGHT, keys, data->keys_previous)){
-    data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {1, 0};
+if(KeyPressed(&data->input, SDL_SCANCODE_Z) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_Z, UNDO_REPEAT_TIME)){
+  ResetKeyHeldTime(&data->input, SDL_SCANCODE_Z);  
+  if(KeyHeld(&data->input, SDL_SCANCODE_LSHIFT)){
+    Redo(data->commandBuffer);
   }
-  else if(KeyPressed(SDL_SCANCODE_LEFT, keys, data->keys_previous)){
-    data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {-1, 0};
+  else{
+    Undo(data->commandBuffer);
   }
-  else if(KeyPressed(SDL_SCANCODE_UP, keys, data->keys_previous)){
-    data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, -1};
-  }
-  else if(KeyPressed(SDL_SCANCODE_DOWN, keys, data->keys_previous)){
-    data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, 1};
-  }
+}
 
-  if(KeyPressed(SDL_SCANCODE_Z, keys, data->keys_previous)){
-    if(KeyHeld(SDL_SCANCODE_LSHIFT, keys, data->keys_previous)){
-      Redo(data->commandBuffer);
-    }
-    else{
-      Undo(data->commandBuffer);
-    }
-  }
+if(KeyPressed(&data->input, SDL_SCANCODE_RIGHT) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_RIGHT, (1 / MOVE_SPEED) * 1.15)){
+  ResetKeyHeldTime(&data->input, SDL_SCANCODE_RIGHT);
+  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {1, 0};
+}
+else if(KeyPressed(&data->input, SDL_SCANCODE_LEFT) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_LEFT, (1 / MOVE_SPEED) * 1.15)){
+  ResetKeyHeldTime(&data->input, SDL_SCANCODE_LEFT);
+  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {-1, 0};
+}
+else if(KeyPressed(&data->input, SDL_SCANCODE_UP) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_UP, (1 / MOVE_SPEED) * 1.15)){
+  ResetKeyHeldTime(&data->input, SDL_SCANCODE_UP);
+  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, -1};
+}
+else if(KeyPressed(&data->input, SDL_SCANCODE_DOWN) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_DOWN, (1 / MOVE_SPEED) * 1.15)){
+  ResetKeyHeldTime(&data->input, SDL_SCANCODE_DOWN);
+  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, 1};
+}
 
 bool are_entities_moving = false;
   for (int i = 0; i < data->GetCurrentLevel()->entityCount; i++){

@@ -146,13 +146,23 @@ int main() {
     Memory::Initialize(arena_main, game_memory, GAME_MEMORY_ALLOWANCE);
     GameData* gameData = (GameData*)Memory::Allocate(arena_main, sizeof(GameData));
 
+    size_t INPUT_ARENA_SIZE = 0;
+    INPUT_ARENA_SIZE += sizeof(bool) * SDL_SCANCODE_COUNT * 2;
+    INPUT_ARENA_SIZE += sizeof(float) * SDL_SCANCODE_COUNT;
+    INPUT_ARENA_SIZE += 128;
+    gameData->arena_input = Memory::CreateSubArena(arena_main, INPUT_ARENA_SIZE);
+
+    gameData->input.keys_current = (bool*)Memory::Allocate(gameData->arena_input, sizeof(bool) * SDL_SCANCODE_COUNT);
+    gameData->input.keys_previous = (bool*)Memory::Allocate(gameData->arena_input, sizeof(bool) * SDL_SCANCODE_COUNT);
+    gameData->input.keys_held_time = (float*)Memory::Allocate(gameData->arena_input, sizeof(float) * SDL_SCANCODE_COUNT);
+
     size_t IMAGE_ARENA_SIZE = sizeof(Image) * 1024;
     gameData->arena_images = Memory::CreateSubArena(arena_main, IMAGE_ARENA_SIZE);
     gameData->arena_levels = Memory::CreateSubArena(arena_main, MEGABYTES(3));
     gameData->arena_entities = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
     gameData->arena_commands = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
 
-    gameData->keys_previous = (bool*)Memory::Allocate(gameData->arena_levels, sizeof(bool) * SDL_SCANCODE_COUNT);
+    gameData->input.keys_previous = (bool*)Memory::Allocate(gameData->arena_levels, sizeof(bool) * SDL_SCANCODE_COUNT);
 
     //Allocate the pointer (array) of levels
     gameData->levelCount = 5;
@@ -217,9 +227,11 @@ int main() {
             }
         }
 
+        gameData->input.keys_current = SDL_GetKeyboardState(nullptr);
+
         dll.update(gameData, dt);
 
-        memcpy((void*)gameData->keys_previous, SDL_GetKeyboardState(nullptr), SDL_SCANCODE_COUNT * sizeof(bool));
+        UpdateKeys(&gameData->input, dt);
 
         dll.draw(gameData, renderer);
 

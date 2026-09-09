@@ -13,8 +13,4 @@ extern "C" {
   __declspec(dllexport) void OnQuit(SDL_Renderer* renderer);
 }
 
-bool KeyPressed(SDL_Scancode key, const bool* current, const bool* previous);
-bool KeyHeld(SDL_Scancode key, const bool* current, const bool* previous);
-bool KeyReleased(SDL_Scancode key, const bool* current, const bool* previous);
-
 bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer,  int xDir, int yDir, int timestamp);
