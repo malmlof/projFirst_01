@@ -2,6 +2,7 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "camera.h"
 #include "command.h"
 #include "image.h"
 #include "imgui/imgui_internal.h"
@@ -34,6 +35,7 @@ struct GameData {
   int input_buffer_read_count;
   Input input;
   Arena* arena_input;
+  Camera camera;
 
   LevelData* GetCurrentLevel(){
     return &levels[currentLevel];
