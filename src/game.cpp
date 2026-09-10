@@ -7,17 +7,14 @@
 #include "command.h"
 #include "dev_gui.h"
 #include "entity.h"
+#include "spritelibrary.h"
 
 extern "C" {
   void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
 
     DEV::Initialize(window,renderer);
     
-    data->ground = AssetManagement::LoadSprite(data->arena_images, renderer, "ground.png");
-    data->wall   = AssetManagement::LoadSprite(data->arena_images, renderer, "wall.png");
-    data->player = AssetManagement::LoadSprite(data->arena_images, renderer, "player.png");
-    data->box    = AssetManagement::LoadSprite(data->arena_images, renderer, "box.png");
-    data->fallback = AssetManagement::LoadSprite(data->arena_images, renderer, "fallback.png");
+    AssetManagement::LoadAllSprites(data->spriteBuffer, renderer);
     data->imGui_context = ImGui::GetCurrentContext();
     
     data->currentLevel = 2;

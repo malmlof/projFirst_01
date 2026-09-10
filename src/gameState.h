@@ -4,19 +4,15 @@
 #include "SDL3/SDL_rect.h"
 #include "camera.h"
 #include "command.h"
-#include "image.h"
 #include "imgui/imgui_internal.h"
 #include "levels.h"
 #include "input.h"
+#include "spritelibrary.h"
 
 struct GameData {
   SDL_FRect rect;
   float move_speed;
-  Image* fallback;
-  Image* ground;
-  Image* wall;
-  Image* player;
-  Image* box;
+  Sprite* spriteBuffer;
   Memory::Arena* arena_levels;
   Memory::Arena* arena_entities;
   Memory::Arena* arena_images;

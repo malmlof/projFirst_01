@@ -1,11 +1,11 @@
 // rendering.cpp
 #include "SDL3/SDL_render.h"
 #include "common.h"
-#include "image.h"
+#include "spritelibrary.h"
 #include "rendering.h"
 #include <cstdio>
 
-void RenderSprite_World(Image* sprite, SDL_Renderer* renderer, const Camera* camera, float x, float y, float scale){
+void RenderSprite_World(Sprite* sprite, SDL_Renderer* renderer, const Camera* camera, float x, float y, float scale){
   SDL_FRect rect;
   rect.x = x;
   rect.y = y;
@@ -17,7 +17,7 @@ void RenderSprite_World(Image* sprite, SDL_Renderer* renderer, const Camera* cam
   SDL_RenderTexture(renderer, sprite->texture, NULL, &rect);
 }
 
-void RenderSprite_Grid(Image* sprite, LevelData* lvl, SDL_Renderer* renderer, const Camera* camera, float x, float y, float scale){
+void RenderSprite_Grid(Sprite* sprite, LevelData* lvl, SDL_Renderer* renderer, const Camera* camera, float x, float y, float scale){
   camera::GridToWorld(&x, &y, lvl);
   RenderSprite_World(sprite, renderer, camera, x, y, scale);
 }

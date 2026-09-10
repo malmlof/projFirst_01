@@ -24,7 +24,6 @@ set(EXE_EXCLUSIVE ${CMAKE_SOURCE_DIR}/src/main.cpp
 
 # Flag files that both our .EXE and .DLL need to know about
 set(SHARED_SOURCES
-	${CMAKE_SOURCE_DIR}/src/image.cpp
 	${CMAKE_SOURCE_DIR}/src/arena.cpp
 	${CMAKE_SOURCE_DIR}/src/input.cpp
 )

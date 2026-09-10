@@ -156,8 +156,10 @@ int main() {
     gameData->input.keys_previous = (bool*)Memory::Allocate(gameData->arena_input, sizeof(bool) * SDL_SCANCODE_COUNT);
     gameData->input.keys_held_time = (float*)Memory::Allocate(gameData->arena_input, sizeof(float) * SDL_SCANCODE_COUNT);
 
-    size_t IMAGE_ARENA_SIZE = sizeof(Image) * 1024;
+    int SPRITE_COUNT = 256;
+    size_t IMAGE_ARENA_SIZE = sizeof(Sprite) * SPRITE_COUNT;
     gameData->arena_images = Memory::CreateSubArena(arena_main, IMAGE_ARENA_SIZE);
+    gameData->spriteBuffer = (Sprite*)Memory::Allocate(gameData->arena_images, sizeof(Sprite) * SPRITE_COUNT);
     gameData->arena_levels = Memory::CreateSubArena(arena_main, MEGABYTES(3));
     gameData->arena_entities = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
     gameData->arena_commands = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
@@ -193,8 +195,6 @@ int main() {
 
     SDL_Setup();
     dll.initialize(gameData, window, renderer);
-
-    gameData->fallback = AssetManagement::LoadSprite(gameData->arena_images, renderer, "fallback.png");
 
     bool running = true;
     float dt;
