@@ -8,6 +8,7 @@
 #include "levels.h"
 #include "input.h"
 #include "spritelibrary.h"
+#include "leveleditor.h"
 
 struct GameData {
   SDL_FRect rect;
@@ -32,6 +33,8 @@ struct GameData {
   Input input;
   Arena* arena_input;
   Camera camera;
+  bool edit_level;
+  Editor editorData;
 
   LevelData* GetCurrentLevel(){
     return &levels[currentLevel];

@@ -73,16 +73,24 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
   return false;
 }
 void Update(GameData* data,float dt){
+
+  if(KeyPressed(&data->input, SDL_SCANCODE_F2)){
+    data->edit_level = !data->edit_level;
+  }
+  if(data->edit_level){
+    EDITOR::Update(&data->editorData, &data->input, data->GetCurrentLevel());
+  }
+
   const bool* keys = SDL_GetKeyboardState(nullptr);
 
-if(KeyPressed(&data->input, SDL_SCANCODE_Z) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_Z, UNDO_REPEAT_TIME)){
-  ResetKeyHeldTime(&data->input, SDL_SCANCODE_Z);  
-  if(KeyHeld(&data->input, SDL_SCANCODE_LSHIFT)){
-    Redo(data->commandBuffer);
-  }
-  else{
-    Undo(data->commandBuffer);
-  }
+  if(KeyPressed(&data->input, SDL_SCANCODE_Z) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_Z, UNDO_REPEAT_TIME)){
+    ResetKeyHeldTime(&data->input, SDL_SCANCODE_Z);  
+    if(KeyHeld(&data->input, SDL_SCANCODE_LSHIFT)){
+      Redo(data->commandBuffer);
+    }
+    else{
+      Undo(data->commandBuffer);
+    }
 }
 
 if(KeyPressed(&data->input, SDL_SCANCODE_RIGHT) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_RIGHT, (1 / MOVE_SPEED) * 1.15)){

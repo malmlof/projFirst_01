@@ -3,11 +3,11 @@
 #include "dev_gui.h"
 #include "gameState.h"
 #include "command.h"
-#include "common.h"
+// #include "common.h"
 #include "imgui/imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_render.h"
 #include <string>
-#include <cstdio>
+// #include <cstdio>
 
 using namespace std;
 
@@ -81,6 +81,11 @@ void DEV::Draw(GameData* data, SDL_Renderer* renderer){
   DrawFPS(*data->dt);
 
   ImGui::End();
+
+  if(data->edit_level){
+    EDITOR::DrawObjectPanel(&data->editorData, data->spriteBuffer);
+    EDITOR::DrawPreview(&data->editorData, &data->input, renderer, data->GetCurrentLevel(), &data->camera, data->spriteBuffer);
+  }
   
   ImGui::Render();
   ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
