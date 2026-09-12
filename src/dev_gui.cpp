@@ -2,12 +2,9 @@
 
 #include "dev_gui.h"
 #include "gameState.h"
-#include "command.h"
-// #include "common.h"
 #include "imgui/imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_render.h"
 #include <string>
-// #include <cstdio>
 
 using namespace std;
 
@@ -53,7 +50,7 @@ void DrawFPS(float dt){
 }
 
 
-void Draw_History(CommandBuffer* buffer){
+void Draw_History(CommandBuffer* buffer, LevelData* level){
   int sliderPos = buffer->index;
 
   if(ImGui::SliderInt("history",&sliderPos, 0, buffer->head)){
@@ -61,7 +58,7 @@ void Draw_History(CommandBuffer* buffer){
       Undo(buffer);
     }
     while(buffer->index < sliderPos){
-      Redo(buffer);
+      Redo(buffer, level);
     }
   }
 }
@@ -76,7 +73,7 @@ void DEV::Draw(GameData* data, SDL_Renderer* renderer){
   Draw_Imgui_Arena_Usage(data->arena_commands, "commands");
   Draw_Imgui_Arena_Usage(data->arena_entities, "entities");
 
-  Draw_History(data->commandBuffer);
+  Draw_History(data->commandBuffer, data->GetCurrentLevel());
 
   DrawFPS(*data->dt);
 

@@ -3,6 +3,7 @@
 #include "leveleditor.h"
 #include "imgui/imgui.h"
 #include "rendering.h"
+#include "spritelibrary.h"
 
 namespace EDITOR{
   void DrawObjectPanel(Editor* editor, Sprite* spriteBuffer){
@@ -27,6 +28,14 @@ namespace EDITOR{
     ImGui::SameLine();
     if(ImGui::ImageButton("Medusa", (ImTextureID)GetSpriteFromID(ID::MEDUSA, spriteBuffer)->texture, size)){
       editor->object_to_place_id = ID::MEDUSA;
+    }
+    ImGui::SameLine();
+    if(ImGui::ImageButton("Siren", (ImTextureID)GetSpriteFromID(ID::SIREN, spriteBuffer)->texture, size)){
+      editor->object_to_place_id = ID::SIREN;
+    }
+    ImGui::SameLine();
+    if(ImGui::ImageButton("Golem", (ImTextureID)GetSpriteFromID(ID::GOLEM, spriteBuffer)->texture, size)){
+    editor->object_to_place_id = ID::GOLEM;
     }
 
     ImGui::End();

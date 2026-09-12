@@ -18,7 +18,7 @@ enum class SPRITE_ID{
   Demon,
   Medusa,
   Golem,
-  Ghost,
+  Siren,
 };
 
 struct SpriteDataEntry{
