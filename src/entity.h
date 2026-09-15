@@ -14,7 +14,9 @@ enum Behaviour : uint32_t {
   RESPOND_TO_INPUT = 1 << 2,
   IS_PETRIFIED = 1 << 3,
   CAN_ROTATE = 1 << 4,
-  UNPUSHABLE = 1 << 5
+  UNPUSHABLE = 1 << 5,
+  JUMPS = 1 << 6,
+  IS_PUSHING = 1 << 7
 };
 
 

@@ -19,7 +19,18 @@ void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
         continue;
       }
       
-      Sprite* sprite = GetSpriteFromID((ID)cellType, gameData->spriteBuffer);
+      // Sprite* sprite = GetSpriteFromID((ID)cellType, gameData->spriteBuffer);
+      Sprite* sprite;
+
+      if(ID(cellType) == ID::GROUND){
+        sprite = &gameData->spriteBuffer[(x + y) % 2 == 0 ?
+          (int)SPRITE_ID::Ground :
+          (int)SPRITE_ID::Ground_alt];
+      }
+      else{
+        sprite = GetSpriteFromID((ID)cellType, gameData->spriteBuffer);
+      }
+
       if(sprite == nullptr){continue;}
       RenderSprite_Grid(sprite, &level, renderer, &gameData->camera, x, y);
     }
@@ -35,16 +46,23 @@ void RenderEntities(GameData* data, SDL_Renderer* renderer){
       continue;
     }
     
-    Sprite* sprite = GetSpriteFromID(entity.id, data->spriteBuffer);
-
+    Sprite* sprite = GetSprite_FromEntityState(&entity, data->spriteBuffer);
     if(HasBehaviour(&entity, Behaviour::IS_PETRIFIED)){
       sprite = GetSpriteFromID(ID::ROCK, data->spriteBuffer);
     }
-
     float x_animated = std::lerp(entity.x_prev, entity.x, entity.progress_01);
     float y_animated = std::lerp(entity.y_prev, entity.y, entity.progress_01);
 
-    RenderSprite_Grid(sprite, &lvl, renderer, &data->camera, x_animated, y_animated);
+    float dropshadow_y = y_animated;
+
+    if(HasBehaviour(&entity, Behaviour::JUMPS) && !HasBehaviour(&entity, Behaviour::IS_PUSHING)){
+      y_animated -= 0.5 * sinf(entity.progress_01 * 3.14);
+    }
+
+    Sprite* dropshadow = &data->spriteBuffer[(int)SPRITE_ID::Dropshadow];
+
+    RenderEntity_OnTile(dropshadow, &lvl, renderer, &data->camera, x_animated, dropshadow_y, 1, 0.4, false);
+    RenderEntity_OnTile(sprite, &lvl, renderer, &data->camera, x_animated, y_animated, 1, 1, entity.facing == Direction::RIGHT);
   }
 }
 

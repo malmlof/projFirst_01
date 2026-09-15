@@ -22,10 +22,11 @@ extern "C" {
     AssetManagement::LoadAllSprites(data->spriteBuffer, renderer);
     data->imGui_context = ImGui::GetCurrentContext();
     
-    data->currentLevel = 2;
+    data->currentLevel = 3;
     CreateLevel(data->arena_levels, &data->levels[0], "assets/levels/testLevel.tmj");
     CreateLevel(data->arena_levels, &data->levels[1], "assets/levels/testLevel_box.tmj");
     CreateLevel(data->arena_levels, &data->levels[2], "assets/levels/testLevel_boxes.tmj");
+    CreateLevel(data->arena_levels, &data->levels[3], "assets/levels/first_04.tmj");
     CreateEntities(&data->levels[data->currentLevel], data->arena_entities);
   }
 }
@@ -107,6 +108,10 @@ bool are_entities_moving = false;
 
     for (int i = 0; i < data->GetCurrentLevel()->entityCount; i++){
       Entity* entity = &data->GetCurrentLevel()->entityBuffer[i];
+      if(HasBehaviour(entity, Behaviour::IS_PUSHING)){
+        RemoveBehaviour(entity, Behaviour::IS_PUSHING);
+      }
+      
       if(HasBehaviour(entity, (Behaviour)(RESPOND_TO_INPUT | CAN_MOVE))){
         if(HasBehaviour(entity, Behaviour::IS_PETRIFIED)){
           continue;
@@ -154,6 +159,7 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
   if(HasBehaviour(stepInto_entity, CAN_MOVE) && !HasBehaviour(stepInto_entity, UNPUSHABLE)){
     if(TryMove(stepInto_entity, level, cmd_buffer, xDir, yDir, --strength)){
       MoveCommand mv(mover, xDir, yDir);
+      AddBehaviour(mover, Behaviour::IS_PUSHING);
       Push(cmd_buffer, mv, level);
       return true;
     }
