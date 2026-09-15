@@ -29,6 +29,7 @@ void InitializeBaseBehaviour(Entity* entity){
       break;
     case ID::MEDUSA:
       SetBehaviour(entity, (Behaviour)(CAN_ROTATE | CAN_MOVE | IS_PLAYER | RESPOND_TO_INPUT));
+      AddBehaviour(entity, Behaviour::JUMPS);
       entity->strength = 1;
       break;
     case ID::SIREN:
@@ -53,7 +54,7 @@ void AddBehaviour(Entity* entity, Behaviour flags){
 
 
 void RemoveBehaviour(Entity* entity, Behaviour flags){
-  entity->behaviour = (Behaviour)(entity->behaviour & -flags);
+  entity->behaviour = (Behaviour)(entity->behaviour & ~flags);
 }
 
 
@@ -98,31 +99,4 @@ void PreRotation(Entity* entity, LevelData* level, CommandBuffer* commandBuffer,
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

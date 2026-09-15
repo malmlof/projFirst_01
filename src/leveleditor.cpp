@@ -43,6 +43,8 @@ namespace EDITOR{
 
   
   void PlaceObject(const int x, const int y, Editor* editor, LevelData* level){
+    if(editor->object_to_place_id == ID::NONE)
+      return;
     if(editor->object_to_place_id == ID::GROUND || editor->object_to_place_id == ID::WALL){
       level->cells[y * level->w + x] = (int)editor->object_to_place_id;
     }
