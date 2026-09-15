@@ -54,7 +54,7 @@ void AddBehaviour(Entity* entity, Behaviour flags){
 
 
 void RemoveBehaviour(Entity* entity, Behaviour flags){
-  entity->behaviour = (Behaviour)(entity->behaviour & -flags);
+  entity->behaviour = (Behaviour)(entity->behaviour & ~flags);
 }
 
 
