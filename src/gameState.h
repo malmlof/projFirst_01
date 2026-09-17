@@ -17,11 +17,13 @@ struct GameData {
   float move_speed;
   Sprite* spriteBuffer;
   
+  Memory::Arena* arena_main;
   Memory::Arena* arena_input;
   Memory::Arena* arena_levels;
   Memory::Arena* arena_entities;
   Memory::Arena* arena_images;
   Memory::Arena* arena_commands;
+  Memory::Arena* arena_scratch;
   CommandBuffer* commandBuffer;
 
   LevelData* levels;

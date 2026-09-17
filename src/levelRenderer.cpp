@@ -4,8 +4,13 @@
 #include "entity.h"
 #include "rendering.h"
 #include "spritelibrary.h"
+#include <algorithm>
 #include <cstdint>
 #include <cmath>
+
+bool IsEntityBelowOtherEntity(Entity* a, Entity* b){
+  return a->y < b->y;
+}
 
 void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
   LevelData level = gameData->levels[gameData->currentLevel];
@@ -38,31 +43,37 @@ void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
 }
 
 void RenderEntities(GameData* data, SDL_Renderer* renderer){
-  LevelData lvl = data->levels[data->currentLevel];
-  for(int i = 0; i < lvl.entityCount; i++){
-    Entity entity = lvl.entityBuffer[i];
+  LevelData* lvl = &data->levels[data->currentLevel];
 
-    if(entity.id == ID::NONE){
+  Entity** SortedEntities = ALLOC_ARRAY(data->arena_scratch, Entity*, lvl->entityCount);
+  for(int i = 0; i < lvl->entityCount; i++){
+    SortedEntities[i] = &lvl->entityBuffer[i];
+  }
+  std::sort(SortedEntities, SortedEntities + lvl->entityCount, IsEntityBelowOtherEntity);
+
+  for (int i = 0; i < lvl->entityCount; i++){
+    Entity* entity = SortedEntities[i];
+    if(entity->id == ID::NONE){
       continue;
     }
-    
-    Sprite* sprite = GetSprite_FromEntityState(&entity, data->spriteBuffer);
-    if(HasBehaviour(&entity, Behaviour::IS_PETRIFIED)){
+  
+    Sprite* sprite = GetSprite_FromEntityState(entity, data->spriteBuffer);
+    if(HasBehaviour(entity, Behaviour::IS_PETRIFIED)){
       sprite = GetSpriteFromID(ID::ROCK, data->spriteBuffer);
     }
-    float x_animated = std::lerp(entity.x_prev, entity.x, entity.progress_01);
-    float y_animated = std::lerp(entity.y_prev, entity.y, entity.progress_01);
+    float x_animated = std::lerp(entity->x_prev, entity->x, entity->progress_01);
+    float y_animated = std::lerp(entity->y_prev, entity->y, entity->progress_01);
 
     float dropshadow_y = y_animated;
 
-    if(HasBehaviour(&entity, Behaviour::JUMPS) && !HasBehaviour(&entity, Behaviour::IS_PUSHING)){
-      y_animated -= 0.5 * sinf(entity.progress_01 * 3.14);
+    if(HasBehaviour(entity, Behaviour::JUMPS) && !HasBehaviour(entity, Behaviour::IS_PUSHING)){
+      y_animated -= 0.5 * sinf(entity->progress_01 * 3.14);
     }
 
     Sprite* dropshadow = &data->spriteBuffer[(int)SPRITE_ID::Dropshadow];
 
-    RenderEntity_OnTile(dropshadow, &lvl, renderer, &data->camera, x_animated, dropshadow_y, 1, 0.4, false);
-    RenderEntity_OnTile(sprite, &lvl, renderer, &data->camera, x_animated, y_animated, 1, 1, entity.facing == Direction::RIGHT);
+    RenderEntity_OnTile(dropshadow, lvl, renderer, &data->camera, x_animated, dropshadow_y, 1, 0.4, false);
+    RenderEntity_OnTile(sprite, lvl, renderer, &data->camera, x_animated, y_animated, 1, 1, entity->facing == Direction::RIGHT);
   }
 }
 
