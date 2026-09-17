@@ -52,7 +52,7 @@ void Update(GameData* data,float dt){
     data->edit_level = !data->edit_level;
   }
   if(data->edit_level){
-    EDITOR::Update(&data->editorData, &data->input, data->GetCurrentLevel());
+    EDITOR::Update(&data->editorData, &data->input, data->GetCurrentLevel(), data->commandBuffer);
   }
 
 
@@ -62,7 +62,7 @@ void Update(GameData* data,float dt){
       Redo(data->commandBuffer, data->GetCurrentLevel());
     }
     else{
-      Undo(data->commandBuffer);
+      Undo(data->commandBuffer, data->GetCurrentLevel());
     }
 }
 

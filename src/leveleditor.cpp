@@ -1,6 +1,7 @@
 // leveleditor.cpp
 
 #include "leveleditor.h"
+#include "command.h"
 #include "imgui/imgui.h"
 #include "rendering.h"
 #include "spritelibrary.h"
@@ -42,14 +43,15 @@ namespace EDITOR{
   }
 
   
-  void PlaceObject(const int x, const int y, Editor* editor, LevelData* level){
+  void PlaceObject(const int x, const int y, Editor* editor, LevelData* level, CommandBuffer* commandBuffer){
     if(editor->object_to_place_id == ID::NONE)
       return;
     if(editor->object_to_place_id == ID::GROUND || editor->object_to_place_id == ID::WALL){
       level->cells[y * level->w + x] = (int)editor->object_to_place_id;
     }
     else{
-      AddEntity(editor->object_to_place_id, x, y, level);
+      AddCommand add(x, y, editor->object_to_place_id);
+      Push(commandBuffer, add, level);
     }
   }
 
@@ -63,13 +65,13 @@ namespace EDITOR{
     }
   }
 
-  void Update(Editor* editor, Input* input, LevelData* level){
+  void Update(Editor* editor, Input* input, LevelData* level, CommandBuffer* commandBuffer){
     if(MousePressed(input, MouseButtons::LEFT)){
       if(camera::GetIsPointInsideGrid(input->mouse_x, input->mouse_y, level)){
         int x;
         int y;
         camera::WorldToGrid(input->mouse_x, input->mouse_y, &x, &y, level);
-        PlaceObject(x, y, editor, level);
+        PlaceObject(x, y, editor, level, commandBuffer);
       }
     }
     else if(MousePressed(input, MouseButtons::RIGHT)){
@@ -77,7 +79,12 @@ namespace EDITOR{
         int x;
         int y;
         camera::WorldToGrid(input->mouse_x, input->mouse_y, &x, &y, level);
-        RemoveEntity(x, y, level);
+        Entity* entity = GetEntity(level, x, y);
+        if(entity == nullptr){
+          return;
+        }
+        RemoveCommand remove(entity);
+        Push(commandBuffer, remove, level);
       }
     }
   }
