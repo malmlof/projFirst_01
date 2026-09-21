@@ -8,18 +8,24 @@ const char* FALLBACK_PATH = "assets/sprites/fallback.png";
 
 static const SpriteDataEntry all_sprite_data[] = {
   {SPRITE_ID::Fallback, FALLBACK_PATH, 0, 0,                                     },
-  {SPRITE_ID::Wall,               "assets/sprites/wall.png", 0, 0                },
-  {SPRITE_ID::Demon,              "assets/sprites/demon.png", 0, 0               },
-  {SPRITE_ID::Ground,             "assets/sprites/ground.png", 0, 0              },
-  {SPRITE_ID::Ground_alt,         "assets/sprites/ground_alt.png", 0, 0          },
-  {SPRITE_ID::Rock,               "assets/sprites/rock.png", 10, 20              },
-  {SPRITE_ID::Medusa_Idle_Side,   "assets/sprites/medusa_idle_side.png", 12, 24  },
-  {SPRITE_ID::Medusa_Idle_Front,  "assets/sprites/medusa_idle_front.png", 12, 24 },
-  {SPRITE_ID::Medusa_Idle_Back,   "assets/sprites/medusa_idle_back.png", 12, 24  },
-  {SPRITE_ID::Siren,              "assets/sprites/siren.png", 0, 0               },
-  {SPRITE_ID::Golem,              "assets/sprites/golem.png", 0, 0               },
-  {SPRITE_ID::Dropshadow,         "assets/sprites/dropshadow.png", 8, 8          }
+  {SPRITE_ID::Wall,                   "assets/sprites/wall.png", 0, 0                },
+  {SPRITE_ID::Demon,                  "assets/sprites/demon.png", 0, 0               },
+  {SPRITE_ID::Ground,                 "assets/sprites/ground.png", 0, 0              },
+  {SPRITE_ID::Ground_alt,             "assets/sprites/ground_alt.png", 0, 0          },
+  {SPRITE_ID::Rock,                   "assets/sprites/rock.png", 10, 20              },
+  {SPRITE_ID::Medusa_Idle_Side,       "assets/sprites/medusa_idle_side.png", 12, 24  },
+  {SPRITE_ID::Medusa_Idle_Front,      "assets/sprites/medusa_idle_front.png", 12, 24 },
+  {SPRITE_ID::Medusa_Idle_Back,       "assets/sprites/medusa_idle_back.png", 12, 24  },
+  {SPRITE_ID::Siren,                  "assets/sprites/siren.png", 0, 0               },
+  {SPRITE_ID::Golem,                  "assets/sprites/golem.png", 0, 0               },
+  {SPRITE_ID::Dropshadow,             "assets/sprites/dropshadow.png", 8, 8          },
+  {SPRITE_ID::black_1x1,              "assets/sprites/1x1_black.png", 0, 0           },
+  {SPRITE_ID::titlescreen_background, "assets/sprites/titlescreen.png", 0, 0         },
 };
+
+Sprite* GetSprite(SPRITE_ID sprite_id, Sprite* spriteBuffer){
+  return &spriteBuffer[(int)sprite_id];
+}
 
 Sprite* GetSpriteFromID(ID id, Sprite* spriteBuffer){
   Sprite* sprite_to_return = nullptr;

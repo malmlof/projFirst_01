@@ -169,18 +169,22 @@ int main() {
     gameData->arena_commands = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
     gameData->arena_scratch = Memory::CreateSubArena(arena_main, KILOBYTES(256));
 
+    gameData->editor_data.fps_buffer_count = 500;
+    gameData->editor_data.fps_buffer = ALLOC_ARRAY(arena_main, float, gameData->editor_data.fps_buffer_count);
+
     gameData->input.keys_previous = (bool*)Memory::Allocate(gameData->arena_levels, sizeof(bool) * SDL_SCANCODE_COUNT);
 
     //Allocate the pointer (array) of levels
-    gameData->levelCount = 5;
-    gameData->levels = ALLOC_ARRAY(gameData->arena_levels, LevelData, gameData->levelCount);
+    gameData->scenes.gameplay.levelCount = 5;
+    gameData->scenes.gameplay.levels = ALLOC_ARRAY(gameData->arena_levels, LevelData, gameData->scenes.gameplay.levelCount);
 
-    gameData->commandBuffer = ALLOC(arena_main, CommandBuffer);    
-    gameData->commandBuffer->capacity = 20000;
-    gameData->commandBuffer->allCommands = ALLOC_ARRAY(gameData->arena_commands, AnyCommand, gameData->commandBuffer->capacity);
+    gameData->scenes.gameplay.commandBuffer = ALLOC(arena_main, CommandBuffer);    
+    gameData->scenes.gameplay.commandBuffer->capacity = 20000;
+    gameData->scenes.gameplay.commandBuffer->allCommands = ALLOC_ARRAY(gameData->arena_commands, AnyCommand, gameData->scenes.gameplay.commandBuffer->capacity);
 
-    gameData->input_buffer_capacity = 50;
-    gameData->input_buffer = ALLOC_ARRAY(gameData->arena_levels, Position, gameData->input_buffer_capacity);
+    Gameplay* gameplay = &gameData->scenes.gameplay;
+    gameData->scenes.gameplay.input_buffer_capacity = 50;
+    gameData->scenes.gameplay.input_buffer = ALLOC_ARRAY(gameData->arena_levels, Position, gameData->scenes.gameplay.input_buffer_capacity);
 
     DLL_INFO dll;
     bool dll_successfully_loaded = LoadDLL(&dll);

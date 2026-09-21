@@ -1,9 +1,16 @@
 // game.cpp
-#include "game.h"
+// 
 #include "SDL3/SDL_scancode.h"
+#include "SDL3/SDL_blendmode.h"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_scancode.h"
+
+#include "game.h"
+#include "arena.h"
 #include "common.h"
 #include "entity.h"
 #include "levelRenderer.h"
+#include "rendering.h"
 #include "command.h"
 #include "dev_gui.h"
 #include "entity.h"
@@ -15,21 +22,62 @@
 #include "levels.h"
 
 extern "C" {
-  void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
 
-    DEV::Initialize(window,renderer);
-    
+void InitializeGame(Gameplay* gameplay, Arena* arena_levels){
+  assert(gameplay->initialized == false);
+  gameplay->currentLevel = 2;
+  CreateLevel(arena_levels, &gameplay->levels[0], "assets/levels/testLevel.tmj");
+  CreateLevel(arena_levels, &gameplay->levels[1], "assets/levels/testLEvel_box.tmj");
+  CreateLevel(arena_levels, &gameplay->levels[2], "assets/levels/first_04.tmj");
+  gameplay->initialized = true;
+}
+
+void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
+    DEV::Initialize(window, renderer);
     AssetManagement::LoadAllSprites(data->spriteBuffer, renderer);
     data->imGui_context = ImGui::GetCurrentContext();
-    
-    data->currentLevel = 3;
-    CreateLevel(data->arena_levels, &data->levels[0], "assets/levels/testLevel.tmj");
-    CreateLevel(data->arena_levels, &data->levels[1], "assets/levels/testLevel_box.tmj");
-    CreateLevel(data->arena_levels, &data->levels[2], "assets/levels/testLevel_boxes.tmj");
-    CreateLevel(data->arena_levels, &data->levels[3], "assets/levels/first_04.tmj");
-    CreateEntities(&data->levels[data->currentLevel], data->arena_entities);
+    SDL_Texture* blackfade = GetSprite(SPRITE_ID::black_1x1, data->spriteBuffer)->texture;
+    SDL_SetTextureBlendMode(blackfade, SDL_BLENDMODE_BLEND);
+    InitializeGame(&data->scenes.gameplay, data->arena_levels);
+    ChangeScene(data, SCENE_TYPES::GAME);
+}
+
+
+void StartLevel(Gameplay* gameplay, Arena* arena_commands, Arena* arena_entities){
+  Reset(arena_commands);
+  CreateEntities(&gameplay->levels[gameplay->currentLevel], arena_entities);
+}
+
+
+void ChangeScene(GameData* data, SCENE_TYPES new_scene){
+  assert(new_scene != data->scene_current);
+  data->scene_previous = data->scene_current;
+  data->scene_current = new_scene;
+  data->transition.state = data->scene_previous == SCENE_TYPES::NONE ?
+    Transition::FadeFrom :
+    Transition::FadeTo;
+  data->transition.fade_time_elapsed = 0;
+  switch (data->scene_current) {
+    case SCENE_TYPES::TITLESCREEN:
+      data->transition.fade_time_duration = 1;
+      break;
+    case SCENE_TYPES::MAINMENU:
+      break;
+    case SCENE_TYPES::GAME:{
+        data->transition.fade_time_duration = 0.5f;
+        Gameplay* gameplay = &data->scenes.gameplay;
+        assert(gameplay->initialized);
+        StartLevel(gameplay, data->arena_commands, data->arena_entities);
+        break;
+      }
+    case SCENE_TYPES::CREDITS:
+      break;
+    case SCENE_TYPES::NONE:
+      assert(false);
+      break;
   }
 }
+
 
 bool HandleEvents(GameData *data, SDL_Event event){
   DEV::ProcessEvents(&event);
@@ -44,48 +92,104 @@ bool HandleEvents(GameData *data, SDL_Event event){
   return true;
   }
 
+
+void UpdateTitleScreen(TitleScreen* titlescreen, const float dt){
+  
+}
+
+
+void UpdateGame(Gameplay* gameplay, Input* input, const float dt){
+  
+}
+
+
 void Update(GameData* data,float dt){
 
-  const bool* keys = SDL_GetKeyboardState(nullptr);
+  Gameplay* gameplay = &data->scenes.gameplay;
+  TitleScreen* titlescreen = &data->scenes.titlescreen;
+  EditorData* editorData = &data->editor_data;
+  Transition* transition = &data->transition;
 
   if(KeyPressed(&data->input, SDL_SCANCODE_F2)){
-    data->edit_level = !data->edit_level;
+    editorData->edit_level = !editorData->edit_level;
   }
-  if(data->edit_level){
-    EDITOR::Update(&data->editorData, &data->input, data->GetCurrentLevel(), data->commandBuffer);
+  
+  if(editorData->edit_level){
+    EDITOR::Update(&editorData->editor, &data->input, GetCurrentLevel(gameplay), gameplay->commandBuffer);
   }
 
+  if(KeyPressed(&data->input, SDL_SCANCODE_5)){
+    ChangeScene(data, SCENE_TYPES::TITLESCREEN);
+    return;
+  }
+
+  if(transition->state != Transition::Inactive){
+    transition->fade_time_elapsed += dt;
+    if(transition->fade_time_elapsed >= transition->fade_time_duration){
+      transition->fade_time_elapsed = 0;
+      switch (transition->state){
+        case Transition::Inactive:
+          break;
+        case Transition::FadeTo:
+          break;
+        case Transition::FadeFrom:
+          transition->state = Transition::Inactive;
+          break;
+      }
+    }
+  }
+
+  switch(data->scene_current){
+    case SCENE_TYPES::TITLESCREEN:
+      UpdateTitleScreen(titlescreen, dt);
+      if(AnyKeyPressed(&data->input)){
+        if(transition->state == Transition::FadeTo || transition->state == Transition::Inactive){
+          ChangeScene(data, SCENE_TYPES::GAME);
+        }
+      }
+      break;
+    case SCENE_TYPES::MAINMENU:
+      break;
+    case SCENE_TYPES::GAME:
+      UpdateGame(gameplay, &data->input, dt);
+      break;
+    case SCENE_TYPES::CREDITS:
+      break;
+    case SCENE_TYPES::NONE:
+      assert(false);
+      break;
+  }
 
   if(KeyPressed(&data->input, SDL_SCANCODE_Z) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_Z, UNDO_REPEAT_TIME)){
     ResetKeyHeldTime(&data->input, SDL_SCANCODE_Z);  
     if(KeyHeld(&data->input, SDL_SCANCODE_LSHIFT)){
-      Redo(data->commandBuffer, data->GetCurrentLevel());
+      Redo(data->scenes.gameplay.commandBuffer, GetCurrentLevel(gameplay));
     }
     else{
-      Undo(data->commandBuffer, data->GetCurrentLevel());
+      Undo(data->scenes.gameplay.commandBuffer, GetCurrentLevel(gameplay));
     }
 }
 
 if(KeyPressed(&data->input, SDL_SCANCODE_RIGHT) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_RIGHT, (1 / MOVE_SPEED) * 1.15)){
   ResetKeyHeldTime(&data->input, SDL_SCANCODE_RIGHT);
-  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {1, 0};
+  data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_write_count++ % data->scenes.gameplay.input_buffer_capacity] = {1, 0};
 }
 else if(KeyPressed(&data->input, SDL_SCANCODE_LEFT) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_LEFT, (1 / MOVE_SPEED) * 1.15)){
   ResetKeyHeldTime(&data->input, SDL_SCANCODE_LEFT);
-  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {-1, 0};
+  data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_write_count++ % data->scenes.gameplay.input_buffer_capacity] = {-1, 0};
 }
 else if(KeyPressed(&data->input, SDL_SCANCODE_UP) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_UP, (1 / MOVE_SPEED) * 1.15)){
   ResetKeyHeldTime(&data->input, SDL_SCANCODE_UP);
-  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, -1};
+  data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_write_count++ % data->scenes.gameplay.input_buffer_capacity] = {0, -1};
 }
 else if(KeyPressed(&data->input, SDL_SCANCODE_DOWN) || KeyHeld_ForTime(&data->input, SDL_SCANCODE_DOWN, (1 / MOVE_SPEED) * 1.15)){
   ResetKeyHeldTime(&data->input, SDL_SCANCODE_DOWN);
-  data->input_buffer[data->input_buffer_write_count++ % data->input_buffer_capacity] = {0, 1};
+  data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_write_count++ % data->scenes.gameplay.input_buffer_capacity] = {0, 1};
 }
 
 bool are_entities_moving = false;
-  for (int i = 0; i < data->GetCurrentLevel()->entityCount; i++){
-    Entity* entity = &data->GetCurrentLevel()->entityBuffer[i];
+  for (int i = 0; i < GetCurrentLevel(gameplay)->entityCount; i++){
+    Entity* entity = &GetCurrentLevel(gameplay)->entityBuffer[i];
     if(HasBehaviour(entity, CAN_MOVE) && IsMoving(entity)){
       entity->progress_01 += MOVE_SPEED * dt;
       if(entity->progress_01 >= 1){
@@ -100,14 +204,14 @@ bool are_entities_moving = false;
   }
 
   if(are_entities_moving == false){
-    if(data->input_buffer_read_count == data->input_buffer_write_count){
+    if(data->scenes.gameplay.input_buffer_read_count == data->scenes.gameplay.input_buffer_write_count){
       return;
     }
 
-    data->commandBuffer->timestamp += 1;
+    data->scenes.gameplay.commandBuffer->timestamp += 1;
 
-    for (int i = 0; i < data->GetCurrentLevel()->entityCount; i++){
-      Entity* entity = &data->GetCurrentLevel()->entityBuffer[i];
+    for (int i = 0; i < GetCurrentLevel(gameplay)->entityCount; i++){
+      Entity* entity = &GetCurrentLevel(gameplay)->entityBuffer[i];
       if(HasBehaviour(entity, Behaviour::IS_PUSHING)){
         RemoveBehaviour(entity, Behaviour::IS_PUSHING);
       }
@@ -116,19 +220,19 @@ bool are_entities_moving = false;
         if(HasBehaviour(entity, Behaviour::IS_PETRIFIED)){
           continue;
         }
-        int xDir = data->input_buffer[data->input_buffer_read_count % data->input_buffer_capacity].x;
-        int yDir = data->input_buffer[data->input_buffer_read_count % data->input_buffer_capacity].y;
+        int xDir = data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_read_count % data->scenes.gameplay.input_buffer_capacity].x;
+        int yDir = data->scenes.gameplay.input_buffer[data->scenes.gameplay.input_buffer_read_count % data->scenes.gameplay.input_buffer_capacity].y;
 
         Direction new_facing = DirectionFromXY(xDir, yDir);
         if(new_facing != entity->facing){
           RotateCommand rotate(entity, entity->facing, new_facing);
-          Push(data->commandBuffer, rotate, data->GetCurrentLevel());
+          Push(data->scenes.gameplay.commandBuffer, rotate, GetCurrentLevel(gameplay));
         }
       
-        TryMove(entity, data->GetCurrentLevel(), data->commandBuffer, xDir, yDir, entity->strength);
+        TryMove(entity, GetCurrentLevel(gameplay), data->scenes.gameplay.commandBuffer, xDir, yDir, entity->strength);
       }
     }
-    data->input_buffer_read_count++;
+    data->scenes.gameplay.input_buffer_read_count++;
   }
  
 }
@@ -167,15 +271,50 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
   return false;
 }
 
+  void DrawScene(GameData* data, SCENE_TYPES scene, SDL_Renderer* renderer){
+    switch(scene){
+      case SCENE_TYPES::TITLESCREEN:{
+          Sprite* background = GetSprite(SPRITE_ID::titlescreen_background, data->spriteBuffer);
+          RenderSprite_World(background, renderer, &data->camera, 0, 0);
+        }
+        break;
+      case SCENE_TYPES::MAINMENU:
+      case SCENE_TYPES::GAME:
+        RenderLevel(data, renderer);
+        RenderEntities(data, renderer);
+        break;
+      case SCENE_TYPES::CREDITS:
+        break;
+      case SCENE_TYPES::NONE:
+        assert(false);
+        break;
+      }
+  }
 
 
   void Draw(GameData* data, SDL_Renderer* renderer){
+
     DEV::PreDraw(data->imGui_context);
     SDL_SetRenderDrawColor(renderer, 74, 128, 128, 255); //Background Color.
     SDL_RenderClear(renderer);
-    
-    RenderLevel(data, renderer);
-    RenderEntities(data, renderer);
+
+    switch(data->transition.state){
+      case Transition::Inactive:
+        DrawScene(data, data->scene_current, renderer);
+        break;
+      case Transition::FadeTo: {
+          DrawScene(data, data->scene_previous, renderer);
+          float alpha = data->transition.fade_time_elapsed / data->transition.fade_time_duration;
+          RenderSprite_World(GetSprite(SPRITE_ID::black_1x1, data->spriteBuffer), renderer, &data->camera, 0, 0, SCREEN_WIDTH,alpha);
+          break;
+        }
+      case Transition::FadeFrom: {
+          DrawScene(data, data->scene_current, renderer);
+          float alpha = 1 - data->transition.fade_time_elapsed / data->transition.fade_time_duration;
+          RenderSprite_World(GetSprite(SPRITE_ID::black_1x1, data->spriteBuffer), renderer, &data->camera, 0, 0, SCREEN_WIDTH,alpha);
+          break;
+        }
+    }
 
     DEV::Draw(data,renderer);
     SDL_RenderPresent(renderer);
@@ -185,4 +324,4 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
     SDL_DestroyRenderer(renderer);
   }
 
-
+} //slutet av extern C

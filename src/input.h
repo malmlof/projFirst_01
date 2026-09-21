@@ -21,6 +21,8 @@ enum class MouseButtons{
   RIGHT = 2,
 };
 
+
+bool AnyKeyPressed(const Input* input);
 bool KeyPressed(const Input* input, SDL_Scancode key);
 bool KeyHeld(const Input* input, SDL_Scancode key);
 bool KeyReleased(const Input* input, SDL_Scancode key);

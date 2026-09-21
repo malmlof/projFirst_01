@@ -1,9 +1,12 @@
 // dev_gui.cpp
 
 #include "dev_gui.h"
+#include "common.h"
 #include "gameState.h"
 #include "imgui/imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_video.h"
+#include "imgui/imgui_internal.h"
 #include <string>
 
 using namespace std;
@@ -45,8 +48,11 @@ void Draw_Imgui_Arena_Usage(Arena* arena, string name_of_arena){
 }
 
 
-void DrawFPS(float dt){
-  ImGui::Text("FPS: %0.f", 1 /dt);
+void DrawFPS(GameData* data){
+  EditorData* editor = &data->editor_data;
+  editor->fps_buffer[editor->fps_buffer_index++] = 1.0 / *data->dt;
+  editor->fps_buffer_index %= editor->fps_buffer_count;
+  ImGui::PlotHistogram("fps", editor->fps_buffer, editor->fps_buffer_count, 0,nullptr, 0,FPS, ImVec2(-1,35));
 }
 
 
@@ -68,20 +74,23 @@ void DEV::Draw(GameData* data, SDL_Renderer* renderer){
   ImGui::Begin("Dev Tools");
   ImGui::Text("memory arena usage amount");
 
+  Draw_Imgui_Arena_Usage(data->arena_main, "all memory");
   Draw_Imgui_Arena_Usage(data->arena_images, "images");
   Draw_Imgui_Arena_Usage(data->arena_levels, "levels");
   Draw_Imgui_Arena_Usage(data->arena_commands, "commands");
   Draw_Imgui_Arena_Usage(data->arena_entities, "entities");
+  Draw_Imgui_Arena_Usage(data->arena_input, "input");
+  Draw_Imgui_Arena_Usage(data->arena_scratch, "scratch");
 
-  Draw_History(data->commandBuffer, data->GetCurrentLevel());
+  Draw_History(data->scenes.gameplay.commandBuffer, GetCurrentLevel(&data->scenes.gameplay));
 
-  DrawFPS(*data->dt);
+  DrawFPS(data);
 
   ImGui::End();
 
-  if(data->edit_level){
-    EDITOR::DrawObjectPanel(&data->editorData, data->spriteBuffer);
-    EDITOR::DrawPreview(&data->editorData, &data->input, renderer, data->GetCurrentLevel(), &data->camera, data->spriteBuffer);
+  if(data->editor_data.edit_level){
+    EDITOR::DrawObjectPanel(&data->editor_data.editor, data->spriteBuffer);
+    EDITOR::DrawPreview(&data->editor_data.editor, &data->input, renderer, GetCurrentLevel(&data->scenes.gameplay), &data->camera, data->spriteBuffer);
   }
   
   ImGui::Render();

@@ -13,11 +13,13 @@ bool IsEntityBelowOtherEntity(Entity* a, Entity* b){
 }
 
 void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
-  LevelData level = gameData->levels[gameData->currentLevel];
 
-  for(int x = 0; x < level.w; x++){
-    for(int y = 0 ; y < level.h; y++){
-      uint8_t cellType = GetCellID(&level, x, y);
+  Gameplay* gameplay = &gameData->scenes.gameplay;
+  LevelData* level = &gameplay->levels[gameplay->currentLevel];
+
+  for(int x = 0; x < level->w; x++){
+    for(int y = 0 ; y < level->h; y++){
+      uint8_t cellType = GetCellID(level, x, y);
 
       auto entity = (ID)cellType;
       if(entity == ID::NONE){
@@ -37,13 +39,13 @@ void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
       }
 
       if(sprite == nullptr){continue;}
-      RenderSprite_Grid(sprite, &level, renderer, &gameData->camera, x, y);
+      RenderSprite_Grid(sprite, level, renderer, &gameData->camera, x, y);
     }
   }
 }
 
 void RenderEntities(GameData* data, SDL_Renderer* renderer){
-  LevelData* lvl = &data->levels[data->currentLevel];
+  LevelData* lvl = &data->scenes.gameplay.levels[data->scenes.gameplay.currentLevel];
 
   Entity** SortedEntities = ALLOC_ARRAY(data->arena_scratch, Entity*, lvl->entityCount);
   for(int i = 0; i < lvl->entityCount; i++){

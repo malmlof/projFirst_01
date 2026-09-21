@@ -25,7 +25,9 @@ enum class SPRITE_ID{
   Medusa_Idle_Back,
   Golem,
   Siren,
-  Dropshadow
+  Dropshadow,
+  titlescreen_background,
+  black_1x1
 };
 
 
@@ -40,6 +42,7 @@ struct SpriteDataEntry{
 
 Sprite* GetSpriteFromID(ID id, Sprite* spriteBuffer);
 Sprite* GetSprite_FromEntityState(Entity* entity, Sprite* spriteBuffer);
+Sprite* GetSprite(SPRITE_ID sprite_id, Sprite* spriteBuffer);
 
 namespace AssetManagement
 {
