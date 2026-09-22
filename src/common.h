@@ -13,10 +13,14 @@ const double FRAME_TIME_MS = 1000.0 / FPS;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 const int UPSCALE_FACTOR = 4;
-const int CELL_SIZE_PX = 16 * UPSCALE_FACTOR;
+const int TILE_SIZE_PX_SCALED = 16 * UPSCALE_FACTOR;
 
 const float MOVE_SPEED = 6.0;
 const float UNDO_REPEAT_TIME = 0.15;
+
+const int TILE_SIZE_PX_RAW = 16;
+const int TILESIZE_PX_SCALED = TILE_SIZE_PX_RAW * UPSCALE_FACTOR;
+
 
 #define DEBUG_PRINT() \
     printf("DEBUG: %s:%d | %s()\n", __FILE__, __LINE__, __FUNCTION__)

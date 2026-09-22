@@ -10,6 +10,7 @@
 #include "input.h"
 #include "spritelibrary.h"
 #include "leveleditor.h"
+#include "tilesetlibrary.h"
 
 
 struct Gameplay {
@@ -90,6 +91,8 @@ struct GameData {
   Scenes scenes;
   Transition transition;
   EditorData editor_data;
+  
+  Tileset* tilesetBuffer;
   
   Memory::Arena* arena_main;
   Memory::Arena* arena_input;

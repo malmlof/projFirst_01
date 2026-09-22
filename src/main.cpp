@@ -161,9 +161,10 @@ int main() {
     gameData->input.mouse_held_time = ALLOC_ARRAY(gameData->arena_input, float, mouseButtonCount);;
 
     int SPRITE_COUNT = 256;
-    size_t IMAGE_ARENA_SIZE = sizeof(Sprite) * SPRITE_COUNT;
+    size_t IMAGE_ARENA_SIZE = MEGABYTES(1);
     gameData->arena_images = Memory::CreateSubArena(arena_main, IMAGE_ARENA_SIZE);
     gameData->spriteBuffer = ALLOC_ARRAY(gameData->arena_images, Sprite, SPRITE_COUNT);
+    gameData->tilesetBuffer = ALLOC_ARRAY(gameData->arena_images, Tileset, (int)TILESETS::COUNT);
     gameData->arena_levels = Memory::CreateSubArena(arena_main, MEGABYTES(3));
     gameData->arena_entities = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));
     gameData->arena_commands = Memory::CreateSubArena(gameData->arena_levels, MEGABYTES(1));

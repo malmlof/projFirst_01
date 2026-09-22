@@ -23,9 +23,9 @@ struct Command {
 struct AddCommand : Command{
   int x;
   int y;
-  ID id;
+  ENTITY_ID id;
 
-  AddCommand(int x, int y, ID id){
+  AddCommand(int x, int y, ENTITY_ID id){
     this->x = x;
     this->y = y;
     this->id = id;
@@ -37,7 +37,7 @@ struct RemoveCommand : Command{
   int x;
   int y;
   Behaviour storedBehaviour;
-  ID storedID;
+  ENTITY_ID storedID;
 
   RemoveCommand(Entity* entity){
     x = entity->x;

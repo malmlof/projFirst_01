@@ -10,14 +10,13 @@ struct Sprite{
   int height;
   int pivot_x;
   int pivot_y;
+  int tileset_cell_count_x;
+  int tileset_cell_count_y;
 };
 
 
 enum class SPRITE_ID{
   Fallback,
-  Ground,
-  Ground_alt,
-  Wall,
   Rock,
   Demon,
   Medusa_Idle_Side,
@@ -27,7 +26,8 @@ enum class SPRITE_ID{
   Siren,
   Dropshadow,
   titlescreen_background,
-  black_1x1
+  black_1x1,
+  dungeon_tileset
 };
 
 
@@ -38,9 +38,11 @@ struct SpriteDataEntry{
   const char* path;
   int pivot_x = NOT_SET;
   int pivot_y = NOT_SET;
+  int tileset_cell_count_x = NOT_SET;
+  int tileset_cell_count_y = NOT_SET;
 };
 
-Sprite* GetSpriteFromID(ID id, Sprite* spriteBuffer);
+Sprite* GetSpriteFromID(ENTITY_ID id, Sprite* spriteBuffer);
 Sprite* GetSprite_FromEntityState(Entity* entity, Sprite* spriteBuffer);
 Sprite* GetSprite(SPRITE_ID sprite_id, Sprite* spriteBuffer);
 

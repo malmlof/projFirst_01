@@ -1,46 +1,48 @@
 { "compressionlevel":-1,
- "height":10,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"json",
+         "target":"testLevel_box.tmj"
+        }
+    },
+ "height":7,
  "infinite":false,
  "layers":[
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-            3, 2, 2, 2, 2, 2, 2, 2, 2, 3,
-            3, 2, 2, 2, 2, 2, 2, 2, 2, 3,
-            3, 2, 2, 2, 2, 2, 2, 2, 2, 3,
-            3, 2, 2, 2, 2, 2, 2, 2, 2, 3,
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         "height":10,
+         "data":[2, 2, 2, 2, 2, 2, 2,
+            2, 1, 1, 2, 1, 1, 2,
+            2, 1, 1, 1, 1, 1, 2,
+            2, 1, 1, 1, 1, 1, 2,
+            2, 1, 1, 1, 1, 1, 2,
+            2, 1, 1, 1, 1, 1, 2,
+            2, 2, 2, 2, 2, 2, 2],
+         "height":7,
          "id":1,
          "name":"level",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
-         "width":10,
+         "width":7,
          "x":0,
          "y":0
         }, 
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 1, 0, 0, 5, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         "height":10,
+         "data":[0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
+            0, 0, 3, 4, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0],
+         "height":7,
          "id":2,
          "name":"entities",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
-         "width":10,
+         "width":7,
          "x":0,
          "y":0
         }],
@@ -48,15 +50,15 @@
  "nextobjectid":1,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.12.2",
+ "tiledversion":"1.12.1",
  "tileheight":32,
  "tilesets":[
         {
          "firstgid":1,
-         "source":"First_Tileset_01.tsx"
+         "source":"Sokoban_basic_tileset.tsx"
         }],
  "tilewidth":32,
  "type":"map",
  "version":"1.10",
- "width":10
+ "width":7
 }

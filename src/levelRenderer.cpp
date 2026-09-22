@@ -17,29 +17,21 @@ void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
   Gameplay* gameplay = &gameData->scenes.gameplay;
   LevelData* level = &gameplay->levels[gameplay->currentLevel];
 
-  for(int x = 0; x < level->w; x++){
-    for(int y = 0 ; y < level->h; y++){
-      uint8_t cellType = GetCellID(level, x, y);
+  Sprite* tileset;
+  switch(level->tileset->type) {
+    case TILESETS::DUNGEON:
+      tileset = GetSprite(SPRITE_ID::dungeon_tileset, gameData->spriteBuffer);
+      break;
+    case TILESETS::NONE:
+    case TILESETS::COUNT:
+      assert(false);
+      break;
+    }
 
-      auto entity = (ID)cellType;
-      if(entity == ID::NONE){
-        continue;
-      }
-      
-      // Sprite* sprite = GetSpriteFromID((ID)cellType, gameData->spriteBuffer);
-      Sprite* sprite;
-
-      if(ID(cellType) == ID::GROUND){
-        sprite = &gameData->spriteBuffer[(x + y) % 2 == 0 ?
-          (int)SPRITE_ID::Ground :
-          (int)SPRITE_ID::Ground_alt];
-      }
-      else{
-        sprite = GetSpriteFromID((ID)cellType, gameData->spriteBuffer);
-      }
-
-      if(sprite == nullptr){continue;}
-      RenderSprite_Grid(sprite, level, renderer, &gameData->camera, x, y);
+  for(int x = 0; x < level->w; x++) {
+    for(int y = 0; y < level->h; y++) {
+      uint16_t id = GetCellID(level, x, y);
+      RenderTile_World(tileset, id, level, renderer, &gameData->camera, x, y, 1, 1);
     }
   }
 }
@@ -55,13 +47,13 @@ void RenderEntities(GameData* data, SDL_Renderer* renderer){
 
   for (int i = 0; i < lvl->entityCount; i++){
     Entity* entity = SortedEntities[i];
-    if(entity->id == ID::NONE){
+    if(entity->active == false){
       continue;
     }
   
     Sprite* sprite = GetSprite_FromEntityState(entity, data->spriteBuffer);
     if(HasBehaviour(entity, Behaviour::IS_PETRIFIED)){
-      sprite = GetSpriteFromID(ID::ROCK, data->spriteBuffer);
+      sprite = GetSpriteFromID(ENTITY_ID::ROCK, data->spriteBuffer);
     }
     float x_animated = std::lerp(entity->x_prev, entity->x, entity->progress_01);
     float y_animated = std::lerp(entity->y_prev, entity->y, entity->progress_01);

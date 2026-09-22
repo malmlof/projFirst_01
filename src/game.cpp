@@ -20,15 +20,14 @@
 #include "input.h"
 #include "leveleditor.h"
 #include "levels.h"
+#include "tilesetlibrary.h"
 
 extern "C" {
 
-void InitializeGame(Gameplay* gameplay, Arena* arena_levels){
+void InitializeGame(Gameplay* gameplay, Arena* arena_levels, Tileset* tilesetBuffer){
   assert(gameplay->initialized == false);
-  gameplay->currentLevel = 2;
-  CreateLevel(arena_levels, &gameplay->levels[0], "assets/levels/testLevel.tmj");
-  CreateLevel(arena_levels, &gameplay->levels[1], "assets/levels/testLEvel_box.tmj");
-  CreateLevel(arena_levels, &gameplay->levels[2], "assets/levels/first_04.tmj");
+  gameplay->currentLevel = 0;
+  CreateLevel(arena_levels, &gameplay->levels[0], &tilesetBuffer[(int)TILESETS::DUNGEON], "assets/levels/testing.tmj");
   gameplay->initialized = true;
 }
 
@@ -36,9 +35,12 @@ void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
     DEV::Initialize(window, renderer);
     AssetManagement::LoadAllSprites(data->spriteBuffer, renderer);
     data->imGui_context = ImGui::GetCurrentContext();
+
+    AssetManagement::LoadAllTilesets(data->tilesetBuffer, data->arena_images);
+    
     SDL_Texture* blackfade = GetSprite(SPRITE_ID::black_1x1, data->spriteBuffer)->texture;
     SDL_SetTextureBlendMode(blackfade, SDL_BLENDMODE_BLEND);
-    InitializeGame(&data->scenes.gameplay, data->arena_levels);
+    InitializeGame(&data->scenes.gameplay, data->arena_levels, data->tilesetBuffer);
     ChangeScene(data, SCENE_TYPES::GAME);
 }
 
@@ -251,9 +253,9 @@ bool TryMove(Entity* mover, LevelData* level, CommandBuffer* cmd_buffer, int xDi
   int test_x = mover->x + xDir;
   int test_y = mover->y + yDir;
   Entity* stepInto_entity = GetEntity(level, test_x, test_y);
-  ID stepInto_tile_id = (ID)GetCellID(level, test_x, test_y);
+  ENTITY_ID stepInto_tile_id = (ENTITY_ID)GetCellID(level, test_x, test_y);
   if(stepInto_entity == nullptr){
-    if(stepInto_tile_id == ID::GROUND){
+    if(IsWalkable(test_x, test_y, level)){
       MoveCommand mv(mover, xDir, yDir);
       Push(cmd_buffer, mv, level);
       return true;
