@@ -41,7 +41,7 @@ void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
     SDL_Texture* blackfade = GetSprite(SPRITE_ID::black_1x1, data->spriteBuffer)->texture;
     SDL_SetTextureBlendMode(blackfade, SDL_BLENDMODE_BLEND);
     InitializeGame(&data->scenes.gameplay, data->arena_levels, data->tilesetBuffer);
-    ChangeScene(data, SCENE_TYPES::GAME);
+    ChangeScene(data, SCENE_TYPES::TITLESCREEN);
 }
 
 
@@ -133,6 +133,7 @@ void Update(GameData* data,float dt){
         case Transition::Inactive:
           break;
         case Transition::FadeTo:
+          transition->state = Transition::FadeFrom;
           break;
         case Transition::FadeFrom:
           transition->state = Transition::Inactive;
