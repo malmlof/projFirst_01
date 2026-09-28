@@ -13,7 +13,7 @@
 void RenderLevel(GameData* gameData, SDL_Renderer* renderer){
 
   Gameplay* gameplay = &gameData->scenes.gameplay;
-  LevelData* level = &gameplay->levels[gameplay->currentLevel];
+  LevelData* level = &gameplay->levels[gameplay->currentLevelIndex];
 
   Sprite* sprite;
   switch(level->tileset->type) {
@@ -41,7 +41,7 @@ bool IsEntityBelowOtherEntity(Entity* a, Entity* b){
 
 
 void RenderEntities(GameData* data, SDL_Renderer* renderer){
-  LevelData* lvl = &data->scenes.gameplay.levels[data->scenes.gameplay.currentLevel];
+  LevelData* lvl = &data->scenes.gameplay.levels[data->scenes.gameplay.currentLevelIndex];
 
   Entity** SortedEntities = ALLOC_ARRAY(data->arena_scratch, Entity*, lvl->entityCount);
   for(int i = 0; i < lvl->entityCount; i++){
