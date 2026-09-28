@@ -11,23 +11,23 @@ namespace EDITOR{
     ImGui::Begin("objects");
     ImVec2 size = {32, 32};
 
-    if(ImGui::ImageButton("Rock", (ImTextureID)GetSpriteFromID(ENTITY_ID::ROCK, spriteBuffer)->texture, size)){
+    if(ImGui::ImageButton("Rock", (ImTextureID)GetSprite(SPRITE_ID::Rock, spriteBuffer)->texture, size)){
       editor->object_to_place_id = ENTITY_ID::ROCK;
     }
     ImGui::SameLine();
-    if(ImGui::ImageButton("Demon", (ImTextureID)GetSpriteFromID(ENTITY_ID::DEMON, spriteBuffer)->texture, size)){
+    if(ImGui::ImageButton("Demon", (ImTextureID)GetSprite(SPRITE_ID::Demon, spriteBuffer)->texture, size)){
       editor->object_to_place_id = ENTITY_ID::DEMON;
     }
     ImGui::SameLine();
-    if(ImGui::ImageButton("Medusa", (ImTextureID)GetSpriteFromID(ENTITY_ID::MEDUSA, spriteBuffer)->texture, size)){
+    if(ImGui::ImageButton("Medusa", (ImTextureID)GetSprite(SPRITE_ID::Medusa_Rotate, spriteBuffer)->texture, size)){
       editor->object_to_place_id = ENTITY_ID::MEDUSA;
     }
     ImGui::SameLine();
-    if(ImGui::ImageButton("Siren", (ImTextureID)GetSpriteFromID(ENTITY_ID::SIREN, spriteBuffer)->texture, size)){
+    if(ImGui::ImageButton("Siren", (ImTextureID)GetSprite(SPRITE_ID::Siren, spriteBuffer)->texture, size)){
       editor->object_to_place_id = ENTITY_ID::SIREN;
     }
     ImGui::SameLine();
-    if(ImGui::ImageButton("Golem", (ImTextureID)GetSpriteFromID(ENTITY_ID::GOLEM, spriteBuffer)->texture, size)){
+    if(ImGui::ImageButton("Golem", (ImTextureID)GetSprite(SPRITE_ID::Golem, spriteBuffer)->texture, size)){
     editor->object_to_place_id = ENTITY_ID::GOLEM;
     }
 
@@ -45,9 +45,9 @@ namespace EDITOR{
     int x;
     int y;
     camera::WorldToGrid(input->mouse_x, input->mouse_y, &x, &y, level);
-    Sprite* preview = GetSpriteFromID(editor->object_to_place_id, spriteBuffer);
+    Sprite* preview = GetSprite(SPRITE_ID::Fallback, spriteBuffer);
     if(preview != nullptr){
-      RenderEntity_OnTile(preview, level, renderer, camera, x, y, 1, 0.5);
+      RenderSprite_OnTile(preview, level, renderer, camera, x, y, 1, 0.5);
     }
   }
 

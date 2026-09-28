@@ -18,11 +18,15 @@ struct Gameplay {
   LevelData* levels;
   int levelCount;
   int currentLevel;
+  float undo_timer;
   Position* input_buffer;
   int input_buffer_capacity;
   int input_buffer_write_count;
   int input_buffer_read_count;
   bool initialized;
+
+  int activePlayerIndex;
+  Entity** activePlayerBuffer;
 };
 
 struct MainMenu {
@@ -103,6 +107,7 @@ struct GameData {
   Memory::Arena* arena_scratch;
 
   const float* dt;
+  float* dt_scaler;
   ImGuiContext* imGui_context;
 
   Input input;

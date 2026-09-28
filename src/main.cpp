@@ -1,14 +1,25 @@
 // main.cpp
+#include <cstddef>
 #include <windows.h>
 #include <fileapi.h>
 #include <cstdio>
 #include <fstream>
+
 #include "SDL3/SDL_init.h"
+#include "SDL3/SDL_keyboard.h"
+#include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_stdinc.h"
 #include "SDL3/SDL_timer.h"
+#include "SDL3/SDL_log.h"
+
+#include "command.h"
 #include "common.h"
 #include "arena.h"
+#include "entity.h"
 #include "gameState.h"
+#include "input.h"
+#include "spritelibrary.h"
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -102,10 +113,11 @@ void SDL_Setup(){
     renderer = SDL_CreateRenderer(window, nullptr);
 }
 
-void CalculateDeltaTime(float& dt){
+void CalculateDeltaTime(float& dt, float& scaler){
     NOW = SDL_GetTicksNS();
     dt = NOW - PREV;
     dt = SDL_NS_TO_SECONDS(dt);
+    dt *= scaler;
     PREV = NOW;
 }
 
@@ -142,6 +154,8 @@ int main() {
 
         return 1;
     }
+
+    SDL_Setup();
     
     Memory::Arena* arena_main = new Memory::Arena();
     Memory::Initialize(arena_main, game_memory, GAME_MEMORY_ALLOWANCE);
@@ -195,18 +209,21 @@ int main() {
         return 2;
     }
 
+    dll.initialize(gameData, window, renderer);
+
     MMRESULT result = timeBeginPeriod(1);
         if(result == TIMERR_NOCANDO){
             Sleep(2000);
             return 3;
         }
 
-    SDL_Setup();
-    dll.initialize(gameData, window, renderer);
 
     bool running = true;
     float dt;
+    float dt_scaler = 1;
     gameData->dt = &dt;
+    gameData->dt_scaler = &dt_scaler;
+    
 
     while(running){
 
@@ -214,7 +231,7 @@ int main() {
 
         Reset(gameData->arena_scratch);
 
-        CalculateDeltaTime(dt);
+        CalculateDeltaTime(dt, dt_scaler);
         SDL_Event event;
         while(SDL_PollEvent(&event)){
             running = dll.handleEvents(gameData, event);

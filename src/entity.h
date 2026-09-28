@@ -6,6 +6,7 @@
 
 struct LevelData;
 struct CommandBuffer;
+struct Gameplay;
 
 enum Behaviour : uint32_t {
   NONE = 0,
@@ -45,6 +46,11 @@ enum class ENTITY_ID : uint8_t {
   GOLEM = 4,
 };
 
+enum class Actions {
+  NONE = 0,
+  MOVING = 1,
+  ROTATING = 2
+};
 
 struct Position{
 
@@ -54,9 +60,11 @@ struct Position{
 
 
 struct Entity{
+  Actions action;
   ENTITY_ID id;
   bool active;
-  Direction facing;
+  Direction facing_current;
+  Direction facing_previous;
   int strength;
   int x;
   int y;
@@ -66,8 +74,10 @@ struct Entity{
   Behaviour behaviour;
 };
 
-bool IsMoving(Entity* e);
+Entity* GetActiveEntity(Gameplay* gameplay);
+bool IsMoving(Entity* entity);
 bool HasBehaviour(Entity* entity, Behaviour flags);
+bool IsActing(Entity* entity);
 void InitializeBaseBehaviour(Entity* entity);
 void SetBehaviour(Entity* entity, Behaviour flags);
 void AddBehaviour(Entity* entity, Behaviour flags);
