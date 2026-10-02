@@ -2,6 +2,7 @@
 
 #include "spritelibrary.h"
 #include "SDL3_image/SDL_image.h"
+#include "common.h"
 #include "entity.h"
 #include <cassert>
 #include <cmath>
@@ -16,6 +17,17 @@ static const SpriteDataEntry all_sprite_data[] = {
   {SPRITE_ID::Demon, "assets/sprites/player.png"},
   {SPRITE_ID::Rock, "assets/sprites/rock.png", 10, 20},
   {SPRITE_ID::Medusa_Rotate, "assets/sprites/medusa_rotate.png", 12, 24, 8, 1},
+  {
+  .id = SPRITE_ID::Medusa_Idle_Left,
+  .path = "assets/sprites/medusa_Idle_left.png",
+  .pivot_x = 12,
+  .pivot_y = 24,
+  .tileset_cell_count_x = 4,
+  .tileset_cell_count_y = 1,
+  .framerate = 8
+},  
+  {SPRITE_ID::Medusa_Idle_Front, "assets/sprites/medusa_Idle_front.png", 12, 24, 4, 1, 8},
+  {SPRITE_ID::Medusa_Idle_Back, "assets/sprites/medusa_Idle_back.png", 12, 24, 4, 1, 8},
   {SPRITE_ID::Dropshadow, "assets/sprites/dropshadow.png", 8, 8},
   {SPRITE_ID::black_1x1, "assets/sprites/1x1_black.png",0,0},
   {SPRITE_ID::titlescreen_background, "assets/sprites/titlescreen.png"},
@@ -24,7 +36,7 @@ static const SpriteDataEntry all_sprite_data[] = {
   {SPRITE_ID::Goal, "assets/sprites/goal.png", 8, 8, 8, 1}
 };
 
-SpriteRenderInfo GetSprite_FromEntityState(Entity* entity, Sprite* spritebuffer){
+SpriteRenderInfo GetSprite_FromEntityState(Entity* entity, Sprite* spritebuffer, const uint64_t* ticks_total){
   if(HasBehaviour(entity, Behaviour::IS_PETRIFIED)){
     return GetSprite(SPRITE_ID::Rock, spritebuffer);
   }
@@ -74,20 +86,25 @@ SpriteRenderInfo GetSprite_FromEntityState(Entity* entity, Sprite* spritebuffer)
 
   switch (entity->id) {
   case ENTITY_ID::MEDUSA:{
-  Sprite* sprite = GetSprite(SPRITE_ID::Medusa_Rotate, spritebuffer);
+  Sprite* sprite = nullptr;
+  int frame = 0;
     switch (entity->facing_current) {
     case Direction::RIGHT:
-      return {6, sprite};
-      break;
+      sprite = GetSprite(SPRITE_ID::Medusa_Idle_Left, spritebuffer);
+      frame = (int)((*ticks_total * sprite->framerate) / FPS % GetSpriteCount(sprite));
+      return {frame, sprite, true};
     case Direction::LEFT:
-      return {2, sprite};
-      break;
+      sprite = GetSprite(SPRITE_ID::Medusa_Idle_Left, spritebuffer);
+      frame = (int)((*ticks_total * sprite->framerate) / FPS % GetSpriteCount(sprite));
+      return {frame, sprite};
     case Direction::DOWN:
-      return {0, sprite};
-      break;
+      sprite = GetSprite(SPRITE_ID::Medusa_Idle_Back, spritebuffer);
+      frame = (int)((*ticks_total * sprite->framerate) / FPS % GetSpriteCount(sprite));
+      return {frame, sprite};
     case Direction::UP:
-      return {4, sprite};
-      break;
+      sprite = GetSprite(SPRITE_ID::Medusa_Idle_Front, spritebuffer);
+      frame = (int)((*ticks_total * sprite->framerate) / FPS % GetSpriteCount(sprite));
+      return {frame, sprite};
     }
   }
   case ENTITY_ID::DEMON:
@@ -167,6 +184,7 @@ namespace AssetManagement{
 
     sprite->sprite_count_x = entry.tileset_cell_count_x;
     sprite->sprite_count_y = entry.tileset_cell_count_y;
+    sprite->framerate = entry.framerate;
 
     
     SDL_DestroySurface(surface);

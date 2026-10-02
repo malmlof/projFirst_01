@@ -80,6 +80,7 @@ struct GameData {
   Sprite* spriteBuffer;
   Tileset* tilesetBuffer;
   AudioSystem audio;
+  uint64_t* ticks_total;
 
   bool running;
   Memory::Arena* arena_main;
