@@ -1,6 +1,7 @@
 // mainmenu.h
 #pragma once
 
+#include "fontlibrary.h"
 #include "input.h"
 
 
@@ -26,6 +27,6 @@ struct MainMenu {
   Sprite* background_front;
 };
 
-void InitializeMenu(MainMenu* mainmenu, Sprite* spriteBuffer, Memory::Arena* arena_main);
+void InitializeMenu(MainMenu* mainmenu, Sprite* spriteBuffer, FontAtlas* font, Memory::Arena* arena_main);
 void UpdateMenu(GameData* data);
 void DrawMenu(MainMenu* mainmenu,  SDL_Renderer* renderer, Sprite* spriteBuffer, Input* input);

@@ -5,6 +5,12 @@
 #define MEGABYTES(n) (KILOBYTES(n) * 1024)
 #define GIGABYTES(n) (MEGABYTES(n) * 1024)
 
+
+static const char STOP_CHAR = '\0';
+inline bool IsStringEmpty(const char* str){
+    return str == nullptr || str[0] == STOP_CHAR;
+}
+
 constexpr size_t GAME_MEMORY_ALLOWANCE = MEGABYTES(14);
 constexpr size_t AUDIO_MEMORY_ALLOWANCE = MEGABYTES(5);
 
