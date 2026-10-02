@@ -222,13 +222,12 @@ int main() {
     gameData->dt = &dt;
     gameData->dt_scaler = &dt_scaler;
     while(gameData->running){
+        CalculateDeltaTime(&dt,  dt_scaler); 
 
         DLL_CheckStatus(&dll);        
 
         Reset(gameData->arena_scratch);
-        
-        CalculateDeltaTime(&dt,  dt_scaler); 
-
+      
         SDL_Event event;
         while(SDL_PollEvent(&event)){
 

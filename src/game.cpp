@@ -18,6 +18,7 @@
 #include "spritelibrary.h"
 #include "levelRenderer.h"
 #include "tilesetlibrary.h"
+#include "audiosystem.h"
 #include <cmath>
 
 extern "C" {
@@ -25,12 +26,15 @@ extern "C" {
   void InitializeGame(Gameplay* gameplay, Arena* arena_levels, Tileset* tilesetBuffer){
     assert(gameplay->initialized == false);
     gameplay->currentLevelIndex = 0;
-    CreateLevel(arena_levels, &gameplay->levels[0], &tilesetBuffer[(int)TILESETS::DUNGEON], "assets/levels/testing.tmj");
+    CreateLevel(arena_levels, &gameplay->levels[0], &tilesetBuffer[(int)TILESETS::DUNGEON], "assets/levels/level_01.tmj");
+    CreateLevel(arena_levels, &gameplay->levels[1], &tilesetBuffer[(int)TILESETS::DUNGEON], "assets/levels/level_02.tmj");
     gameplay->initialized = true;
   }
 
   void Initialize(GameData* data, SDL_Window* window, SDL_Renderer* renderer){
     DEV::Initialize(window, renderer);
+    InitializeAudioSystem(&data->audio, data->arena_main);
+    AssetManagement::LoadAllSFX(&data->audio);
     AssetManagement::LoadAllSprites(data->spriteBuffer, renderer);
     data->imGui_context = ImGui::GetCurrentContext();
 
@@ -46,6 +50,7 @@ extern "C" {
   
 
   void StartLevel(Gameplay* gameplay, Arena* arena_commands, Arena* arena_entities){
+    ResetCommandBuffer(gameplay->commandBuffer);
     Reset(arena_commands);
     CreateEntities(&gameplay->levels[gameplay->currentLevelIndex], arena_entities);
     gameplay->activePlayerIndex = 0;
@@ -95,7 +100,12 @@ extern "C" {
   void UpdateTitlescreen(TitleScreen* titlescreen, const float dt){
   }
 
-  void UpdateGame(Gameplay* gameplay, Input* input, Arena* arena_scratch, const float dt){
+  void UpdateGame(Gameplay* gameplay, Input* input, Arena* arena_scratch, Arena* arena_commands, Arena* arena_entities, const float dt){
+    if(KeyPressed(input, SDL_SCANCODE_R)) {
+      StartLevel(gameplay, arena_commands, arena_entities);
+      return;
+    }
+
     float undo_speed_up = std::lerp(1.0, 0.15, (gameplay->commandBuffer->head - gameplay->commandBuffer->index) * (1.0/30.0));
     if(undo_speed_up < 0.15){
       undo_speed_up = 0.15;
@@ -139,6 +149,38 @@ extern "C" {
       }
     }
 
+
+    for (int i = 0; i < level->goalCount; i++) {
+      Entity* entity = GetEntity(level, level->goals[i].x, level->goals[i].y);
+      if(entity != nullptr && !IsActing(entity)) {
+        level->goals[i].blink_timer += dt;
+      }
+      else {
+        level->goals[i].blink_timer = 0;
+      }
+    }
+
+
+    if(level->goalCount > 0) {
+      int goals_reached = 0;
+      for (int i = 0; i < level->goalCount; i++) {
+        Goal goal = level->goals[i];
+        Entity* entity = GetEntity(level, goal.x, goal.y);
+        if(entity == nullptr){
+          break;
+        }
+        else if(HasBehaviour(entity, Behaviour::IS_PLAYER)){
+          goals_reached++;
+        }
+      }
+      if(goals_reached == level->goalCount) {
+        gameplay->currentLevelIndex++;
+        StartLevel(gameplay, arena_commands, arena_entities);
+        return;
+      }
+    }
+    
+
     for (int i = 0; i < level->entityCount; i++){
       Entity* entity = &entityBuffer[i];
       if(!entity->active) continue;
@@ -153,6 +195,8 @@ extern "C" {
           break;
       }
     }
+
+    
     for (int i = 0; i < level->entityCount; i++){
       Entity* entity = &entityBuffer[i];
       if(entity->progress_01 >= 1){
@@ -221,7 +265,10 @@ extern "C" {
     }
 
     if(!IsActing(entity)){
-      TryMove(entity, level, gameplay->commandBuffer, xDir, yDir, entity->strength);
+      bool moved = TryMove(entity, level, gameplay->commandBuffer, xDir, yDir, entity->strength);
+      if(moved) {
+        PlaySFX(SFX_ID::JUMP); // play audio if the player managed to change position
+      }
       gameplay->commandBuffer->timestamp += 1;
       gameplay->input_buffer_read_count++;
     }
@@ -276,7 +323,7 @@ extern "C" {
       UpdateMenu(data);
       break;
     case SCENE_TYPES::GAME:
-      UpdateGame(gameplay, &data->input, data->arena_scratch, dt);
+      UpdateGame(gameplay, &data->input, data->arena_scratch, data->arena_commands, data->arena_entities, dt);
       break;
     case SCENE_TYPES::CREDITS:
       break;

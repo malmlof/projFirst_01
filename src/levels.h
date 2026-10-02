@@ -6,15 +6,31 @@
 #include <cstdint>
 using namespace Memory;
 
+
+struct Goal {
+  int x;
+  int y;
+  float blink_timer;
+};
+
+
 struct LevelData{
   int w;
   int h;
   uint16_t* cells;
+  Goal* goals;
+  int goalCount;
   const char* level_path;
   Entity* entityBuffer;
   int entityCount;
   const Tileset* tileset;
 };
+
+
+namespace AssetManagement {
+  std::vector<uint16_t> GetCellDataFromJsonLayer(nlohmann::json& parsedJson, const char* layerName, bool* wasFound);
+  int GetFirstNonZeroCell(std::vector<uint16_t>* list);
+}
 
 
 void CreateLevel(Arena* arena, LevelData* level, Tileset* tileset, const char* level_name);

@@ -3,6 +3,7 @@
 
 #include "SDL3/SDL_render.h"
 #include "entity.h"
+#include "levels.h"
 
 
 enum class SPRITE_ID{
@@ -16,7 +17,8 @@ enum class SPRITE_ID{
   titlescreen_background,
   black_1x1,
   dungeon_tileset,
-  selection_marker
+  selection_marker,
+  Goal
 };
 
 

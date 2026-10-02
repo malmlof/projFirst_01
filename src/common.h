@@ -5,7 +5,8 @@
 #define MEGABYTES(n) (KILOBYTES(n) * 1024)
 #define GIGABYTES(n) (MEGABYTES(n) * 1024)
 
-constexpr size_t GAME_MEMORY_ALLOWANCE = MEGABYTES(10);
+constexpr size_t GAME_MEMORY_ALLOWANCE = MEGABYTES(14);
+constexpr size_t AUDIO_MEMORY_ALLOWANCE = MEGABYTES(5);
 
 constexpr int FPS = 240;
 const double FRAME_TIME_MS = 1000.0 / FPS;
@@ -25,3 +26,14 @@ const int TILESIZE_PX_SCALED = TILE_SIZE_PX_RAW * UPSCALE_FACTOR;
 #define DEBUG_PRINT() \
     printf("DEBUG: %s:%d | %s()\n", __FILE__, __LINE__, __FUNCTION__)
     //använd bara: DEBUG_PRINT(); i koden för prints med funktionen och radnummer.
+
+
+
+inline void Expand1DTo2D(int flatIndex, int width, int* x, int* y) {
+    *x = flatIndex % width;
+    *y = flatIndex / width;
+}
+inline void Expand1DTo2D(int flatIndex, int width, float* x, float* y){
+    *x = (float)(flatIndex % width);
+    *y = (float)(flatIndex / width);
+}
