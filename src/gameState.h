@@ -11,7 +11,7 @@
 #include "levels.h"
 #include "mainmenu.h"
 #include "spritelibrary.h"
-
+#include "fontlibrary.h"
 
 enum class SCENE_TYPES : uint8_t{
   NONE,
@@ -94,6 +94,8 @@ struct GameData {
   ImGuiContext* imGui_context;
   const float* dt;  
   float* dt_scaler;
+
+  FontAtlas font;
   
  };
 

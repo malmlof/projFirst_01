@@ -12,11 +12,11 @@ bool IsHoveredOver(Button* button, float x, float y){
   return CheckCollisionInsideBounds(button->rect, x, y);
 }
 
-void SetupButton(Button* button, ButtonType type, Sprite* spriteBuffer, SDL_FRect rect, ButtonMode mode){
+void SetupButton(Button* button, ButtonType type, Sprite* spriteBuffer, SDL_FRect rect, Alignment mode){
   assert(type != ButtonType::NONE);
   button->type = type;
   button->rect = rect;
-  if(mode == ButtonMode::Centered){
+  if(mode == Alignment::Centered){
     button->rect.x -= button->rect.w / 2;
     button->rect.y -= button->rect.h / 2;
   }
