@@ -45,6 +45,9 @@ extern "C" {
     SDL_SetTextureBlendMode(blackfade, SDL_BLENDMODE_BLEND);
     InitializeGame(&data->scenes.gameplay, data->arena_levels, data->tilesetBuffer);
     InitializeMenu(&data->scenes.mainMenu, data->spriteBuffer, data->arena_main);
+
+    PlaySong(SONG_ID::THEME);
+
     ChangeScene(data, SCENE_TYPES::MAINMENU);
   }
 
